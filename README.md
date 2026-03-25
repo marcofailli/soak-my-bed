@@ -18,9 +18,11 @@ All 3D printer beds and frames undergo significant physical deformation as they 
 ### ✨ Key Features
 * **Full Automation:** Handles Bed Meshing in a continuous loop for as long as you wish.
 * **Smart Time Logic:** Automatically calculates the optimal interval between meshes, adding a safety buffer and rounding to the nearest 5-second mark for consistent data points.
+* **Auto-Scaling & Bed Detection:** Automatically reads your mesh boundaries directly from Klipper. It works out-of-the-box on any printer size (Voron, Prusa, Ender, etc.) without manual configuration.
+* **History Tracking:** Saves uniquely timestamped JSON and GIF files (e.g., `soak_20231027_153000.gif`) in your `soak_data` folder so you never overwrite or lose your previous test data.
 * **Dual Stability Tracking:** Monitors variations relative to the initial "cold" state and the immediate "previous" mesh to identify equilibrium.
 * **Visual Analytics:** Generates a 3D animation (GIF) and stability curves to visualize the evolution of the deformation of your printer.
-* **Interruptible Workflow:** Stop the process at any time with `CANCEL_SOAK` and still get a complete graph of the data collected so far.
+* **Instant Abort:** Stop the process at any time with `ABORT_SOAK`. The script uses non-blocking logic to instantly halt the heater and still generate a complete graph of the data collected so far.
 
 ### ⚙️ How it works
 The plugin operates by running successive `BED_MESH_CALIBRATE` cycles. After each mesh, the script captures the Z-matrix and the current bed temperature. It then calculates the **Mean Absolute Error (MAE)**:
@@ -41,20 +43,20 @@ The plugin operates by running successive `BED_MESH_CALIBRATE` cycles. After eac
 1. **Clone the repository** to your Klipper host (Raspberry Pi/BTT Pi):
     ```bash
     cd ~
-    git clone https://github.com/marcofailli/soak-my-bed.git
+    git clone [https://github.com/marcofailli/soak-my-bed.git](https://github.com/marcofailli/soak-my-bed.git)
     ```
 2. **Run the automated installer**:
-   (this step might take a while since we are installing the Python plotting libraries, be patient!)
+   *(This step might take a while since we are installing system dependencies and Python plotting libraries like SciPy. Be patient!)*
     ```bash
     cd soak-my-bed
     chmod +x install.sh
     ./install.sh
     ```
-4. **Configure Klipper**: Add the following line anywhere in your `printer.cfg`:
+3. **Configure Klipper**: Add the following line anywhere in your `printer.cfg`:
     ```ini
     [soak_my_bed]
     ```
-5. **Restart Klipper**:
+4. **Restart Klipper**:
     ```bash
     sudo systemctl restart klipper
     ```
@@ -67,12 +69,16 @@ It is recommended to start the script with your printer cold, in equilibrium wit
 Heat soaking is a slow process that continues well after reaching your bed target temperature; a typical soak cycle lasts about 60 minutes... **Don't rush!**
 
 #### Commands
-* `SOAK_MY_BED TEMP=100 DURATION=60`
-    * Sets the bed to 100°C and runs the analysis for exactly 60 minutes.
-* `SOAK_MY_BED TEMP=60`
-    * Sets the bed to 60°C. It will run until the target temperature is reached, then continue for an additional **30 minutes** of stabilization.
-* `CANCEL_SOAK`
+* `SOAK_MY_BED TEMPERATURE=100 DURATION=60`
+    * Sets the bed to 100°C. It will wait until the target temperature is reached, then run the analysis for exactly 60 minutes.
+* `SOAK_MY_BED`
+    * Runs with default values (Target: 60°C, Duration: 10 minutes).
+* `SOAK_MY_BED TEMPERATURE=110 DURATION=45 HEATER=heater_bed MESH_COMMAND="BED_MESH_CALIBRATE METHOD=rapid_scan"`
+    * **Advanced:** You can override the default heater name and the specific mesh command you want to use (e.g., if you want to use a specific macro or beacon scan method).
+* `ABORT_SOAK`
     * Stops the process immediately, turns off the heater, and triggers the generation of the GIF with the data collected up to that moment.
+
+*Note: Once the process is completed or aborted, you can find your animated GIF inside the `printer_data/config/soak_data` folder directly from the Mainsail/Fluidd web interface!*
 
 ---
 <p align="center">
