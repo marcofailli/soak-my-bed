@@ -63,6 +63,20 @@ The plugin operates by running successive `BED_MESH_CALIBRATE` cycles. After eac
 
 ---
 
+### 🗂️ Custom Path Configuration (Creality OS, Sovol, BTT, etc.)
+
+By default, **SoakMyBed** automatically detects your current user's home directory (whether it's `pi`, `sovol`, `biqu`, or `elegoo`) and finds the correct Python environment dynamically. You don't need to change anything for standard setups!
+
+However, if your Klipper installation is completely custom or runs on a locked-down system like **Creality K1/K1C**, you can manually override the default paths directly in your `printer.cfg`. Just add these variables under the main section:
+
+```ini
+[soak_my_bed]
+save_dir: /usr/data/printer_data/config/soak_data
+plot_script_path: /usr/data/soak-my-bed/scripts/plotter.py
+```
+
+---
+
 ### 🛠️ Usage
 
 Before running the script you will have to execute your usual homing routine (that might include `G28`, `QUAD_GANTRY_LEVEL`, ...).
