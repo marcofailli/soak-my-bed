@@ -73,6 +73,8 @@ However, if your Klipper installation is completely custom or runs on a locked-d
 [soak_my_bed]
 save_dir: /usr/data/printer_data/config/soak_data
 plot_script_path: /usr/data/soak-my-bed/scripts/plotter.py
+# Optional: customize your mesh command (defaults to BED_MESH_CALIBRATE)
+mesh_command: BED_MESH_CALIBRATE METHOD=rapid_scan
 ```
 
 ---
