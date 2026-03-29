@@ -31,7 +31,7 @@ The plugin operates by running successive `BED_MESH_CALIBRATE` cycles. After eac
 
 ### 🖼️ Thermal Evolution Plot
 <p align="center">
-  <img src="plot.gif" width="100%" alt="Thermal Stability Animation">
+  <img src="test_plot.gif" width="100%" alt="Thermal Stability Animation">
 </p>
 
 > **How to read this graph:** > The top 3D plot shows the physical warping of the bed (exaggerated for clarity). In the bottom 2D plot, focus on the **Red Dashed Line** (Vs Prev Mesh). When this line stays flat and close to zero, your printer has stopped moving. The **Blue Line** shows how much your bed has moved in total from its original position—this explains why a first layer might fail if you don't wait for the soak to complete!
