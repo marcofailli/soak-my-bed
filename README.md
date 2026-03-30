@@ -19,7 +19,7 @@ All 3D printer beds and frames undergo significant physical deformation as they 
 * **Full Automation:** Handles Bed Meshing in a continuous loop for as long as you wish.
 * **Smart Time Logic:** Automatically calculates the optimal interval between meshes, adding a safety buffer and rounding to the nearest 5-second mark for consistent data points.
 * **Auto-Scaling & Bed Detection:** Automatically reads your mesh boundaries directly from Klipper. It works out-of-the-box on any printer size (Voron, Prusa, Ender, etc.) without manual configuration.
-* **History Tracking:** Saves uniquely timestamped JSON and GIF files (e.g., `soak_20231027_153000.gif`) in your `soak_data` folder so you never overwrite or lose your previous test data.
+* **History Tracking:** Saves uniquely timestamped JSON and GIF files (e.g., `0260330_0938_110C_45m.gif`) in your `soak_data` folder so you never overwrite or lose your previous test data.
 * **Dual Stability Tracking:** Monitors variations relative to the initial "cold" state and the immediate "previous" mesh to identify equilibrium.
 * **Visual Analytics:** Generates a 3D animation (GIF) and stability curves to visualize the evolution of the deformation of your printer.
 * **Instant Abort:** Stop the process at any time with `ABORT_SOAK`. The script uses non-blocking logic to instantly halt the heater and still generate a complete graph of the data collected so far.
@@ -57,7 +57,7 @@ The plugin operates by running successive `BED_MESH_CALIBRATE` cycles. After eac
     [soak_my_bed]
     ```
 4. **Enable Automatic Updates**: Add the following in your `moonraker.conf`:
-    ```bash
+    ```ini
     [update_manager soak-my-bed]
     type: git_repo
     path: ~/soak-my-bed
