@@ -1,7 +1,3 @@
-# Soak My Bed - Klipper Plugin for Thermal Stability Analysis
-# Version: 1.0.3
-# Updated naming convention and detailed console logging
-
 import time
 import math
 import os
@@ -31,7 +27,7 @@ class SoakMyBed:
         self.soak_start_time = None
         self.is_heating = False
         self.is_running = False
-        self.scan_count = 0  # Counter for scans
+        self.scan_count = 0 
         
         home_dir = os.path.expanduser("~")
         default_save_dir = os.path.join(home_dir, "printer_data", "config", "soak_data")
@@ -42,8 +38,11 @@ class SoakMyBed:
         self.klipper_python = sys.executable 
         self.default_mesh_cmd = config.get('mesh_command', 'BED_MESH_CALIBRATE')
         
+        raw_extra = config.get('extra_sensors', '')
+        self.extra_sensors = [s.strip() for s in raw_extra.split(',') if s.strip()]
+        
         self.json_path = ""
-        self.gcode.respond_info(f"SoakMyBed v1.0.3 initialized!")
+        self.gcode.respond_info(f"SoakMyBed v1.0.4 initialized with {len(self.extra_sensors)} extra sensors.")
 
     def cmd_SOAK_MY_BED(self, gcmd):
         if self.is_running:
@@ -66,8 +65,6 @@ class SoakMyBed:
         else:
             self.sensor_name = f"heater_generic {self.heater}"
 
-        # --- UPDATED NAMING CONVENTION ---
-        # Format: YYYYMMDD_HHMMSS_XXC_YYm
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         duration_min = int(self.duration_sec / 60)
         filename = f"{timestamp}_{int(self.temp)}C_{duration_min}m.json"
@@ -114,7 +111,6 @@ class SoakMyBed:
             self.is_running = False
             return
 
-        # --- CONSOLE FEEDBACK LOGIC ---
         self.scan_count += 1
         elapsed_total = int(time.time() - self.script_start_time)
         
@@ -157,21 +153,34 @@ class SoakMyBed:
             bed_mesh = self.printer.lookup_object('bed_mesh', None)
             sensor_obj = self.printer.lookup_object(self.sensor_name)
             current_temp = sensor_obj.get_status(eventtime).get('temperature', 0.0)
+            
+            extra_temps = {}
+            for s_name in self.extra_sensors:
+                try:
+                    s_obj = self.printer.lookup_object(s_name)
+                    extra_temps[s_name] = s_obj.get_status(eventtime).get('temperature', 0.0)
+                except:
+                    pass
+
             if bed_mesh is not None:
                 mesh_status = bed_mesh.get_status(eventtime)
                 matrix = mesh_status.get('probed_matrix') or mesh_status.get('mesh_matrix', [[]])
                 mesh_min = mesh_status.get('mesh_min', [0.0, 0.0])
                 mesh_max = mesh_status.get('mesh_max', [300.0, 300.0])
+                
                 with open(self.json_path, "r") as f: data = json.load(f)
                 data.append({
                     "time": time.time() - self.script_start_time, 
                     "temp": current_temp, 
+                    "extra_temps": extra_temps,
                     "matrix": matrix,
                     "mesh_min": mesh_min,
-                    "mesh_max": mesh_max
+                    "mesh_max": mesh_max,
+                    "primary_sensor": self.heater
                 })
                 with open(self.json_path, "w") as f: json.dump(data, f)
         except: pass
+        
         mesh_duration = time.time() - self.mesh_start_time
         wait_interval = max(1.0, (math.ceil((mesh_duration + 3.0) / 5.0) * 5.0) - mesh_duration)
         reactor.register_timer(self._trigger_next_eval, eventtime + wait_interval)
