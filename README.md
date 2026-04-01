@@ -34,7 +34,7 @@ The plugin operates by running successive `BED_MESH_CALIBRATE` cycles. After eac
   <img src="test_plot.gif" width="100%" alt="Thermal Stability Animation">
 </p>
 
-> **How to read this graph:** > The top 3D plot shows the physical warping of the bed (exaggerated for clarity). In the bottom 2D plot, focus on the **Red Dashed Line** (Vs Prev Mesh). When this line stays flat and close to zero, your printer has stopped moving. The **Blue Line** shows how much your bed has moved in total from its original position—this explains why a first layer might fail if you don't wait for the soak to complete!
+> The top 3D plot shows the physical warping of the bed (exaggerated for clarity). In the bottom 2D plot, focus on the **Red Dashed Line** (Vs Prev Mesh). When this line stays flat and close to zero, your printer has stopped moving. The **Blue Line** shows how much your bed has moved in total from its original position—this explains why a first layer might fail if you don't wait for the soak to complete!
 
 ---
 
@@ -83,10 +83,13 @@ However, if your Klipper installation is completely custom or runs on a locked-d
 [soak_my_bed]
 save_dir: /usr/data/printer_data/config/soak_data
 plot_script_path: /usr/data/soak-my-bed/scripts/plotter.py
-# Optional: customize your mesh command (defaults to BED_MESH_CALIBRATE)
 mesh_command: BED_MESH_CALIBRATE METHOD=rapid_scan
+extra_sensors: temperature_sensor sensor_name, temperature_fan fan_name, heater_generic heater_name
 ```
-
+You can specify extra temperatures you want to record and plot, for example:
+* `temperature_sensor chamber`
+* `extruder`  
+Make sure to use the same definition and name you have set in printer.cfg; if you don't specify `extra_sensors`, only the temperature of the activated heater will be recorded and plotted
 ---
 
 ### 🛠️ Usage
